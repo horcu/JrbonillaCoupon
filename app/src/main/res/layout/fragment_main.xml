@@ -29,6 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/top_separator"
         android:background="#ffffff"
+        android:elevation="3dp"
         android:padding="5dp"
 
         android:paddingLeft="16dp"
@@ -118,7 +119,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="take"
+                android:text="save"
                 android:fontFamily="sans-serif-thin"
                 android:textSize="20sp"
                 android:textColor="#607d8b"
@@ -155,7 +156,7 @@
                     android:fontFamily="sans-serif-thin"
                     android:lines="4"
                     android:background="@android:color/transparent"
-                    android:hint="off your next color appointment" />
+                    android:hint="on your next color appointment" />
 
 
 

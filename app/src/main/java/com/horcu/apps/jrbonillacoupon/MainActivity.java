@@ -7,7 +7,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 
@@ -17,6 +20,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,10 +43,13 @@ import com.squareup.picasso.Picasso;
 import org.angmarch.views.NiceSpinner;
 import org.w3c.dom.Text;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -137,130 +144,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
     /**
      * A placeholder fragment containing a simple view.
      */
-    public class CouponFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
 
-        public CouponFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-           info = (LinearLayout)rootView.findViewById(R.id.info);
-
-            couponCard = (LinearLayout)rootView.findViewById(R.id.coupon_card);
-            couponCard.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(info.getVisibility() == View.GONE)
-                    info.setVisibility(View.VISIBLE);
-                }
-            });
-
-
-            hideBuilder = (ImageView) rootView.findViewById(R.id.hide_cpn_builder);
-            hideBuilder.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                   couponCard.setVisibility(View.GONE);
-                }
-            });
-
-
-            clientCount = (TextView)couponCard.findViewById(R.id.client_count);
-            featuredClient = (TextView)couponCard.findViewById(R.id.featured_client);
-            profile_pic = (CircleImageView)couponCard.findViewById(R.id.profile_image);
-
-
-
-//            save = (Button) rootView.findViewById(R.id.save_cpn_builder);
-//            save.setOnClickListener(new View.OnClickListener() {
-//             @Override
-//             public void onClick(View v) {
-//
-//                 String txt = ((NiceSpinner)info.findViewById(R.id.coupon_type)).getText().toString();
-//                 ((TextView)couponCard.findViewById(R.id.coupon_dtls)).setText(txt);
-//
-//                  }
-//                });
-
-            send = (Button) rootView.findViewById(R.id.send);
-            send.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    if(MobNumbers.size() < 1)
-                    {
-                        Snackbar.make(v,"No clients selected", Snackbar.LENGTH_LONG).show();
-                        return;
-                    }
-
-//                    for (int i = 0; i < MobNumbers.size(); i++)
-//                    {
-//                        String message = "This is  a test";
-//                        String tempMobileNumber = MobNumbers.get(i).toString();
-//                        MultipleSMS(tempMobileNumber, message);
-//                    }
-
-                    MultipleSMS("5409152215", "test");
-                    Snackbar.make(v,"Sent!", Snackbar.LENGTH_LONG).show();
-                }
-            });
-
-            cpnExp = (TextView) rootView.findViewById(R.id.expir);
-            cpnExp.setOnClickListener(new View.OnClickListener() {
-              @Override
-              public void onClick(View v) {
-                  DatePickerBuilder datePicker = new DatePickerBuilder()
-                          .setFragmentManager(getFragmentManager())
-                          .setReference(2)
-                          .setStyleResId(R.style.BetterPickersDialogFragment_Light);
-                  datePicker.show();
-                     }
-                });
-
-
-            cpnVal = (Button) rootView.findViewById(R.id.percOrValTxt);
-            cpnVal.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-             NumberPickerBuilder numberPicker = new NumberPickerBuilder()
-            .setFragmentManager(getFragmentManager())
-            .setReference(2)
-            .setStyleResId(R.style.BetterPickersDialogFragment_Light);
-             numberPicker.show();
-                }
-            });
-
-
-            getClients = (LinearLayout) rootView.findViewById(R.id.get_clients);
-            getClients.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(getContext(),ClientsActivity.class);
-                    startActivityForResult(intent,9999);
-                }
-            });
-
-
-           // pctOrVal = (NiceSpinner)rootView.findViewById(R.id.percent_value);
-
-        //    List<String> options = new LinkedList<>(Arrays.asList("off your next appointment", "off for a friend"));
-         //   List<String> percorval = new LinkedList<>(Arrays.asList("%", "$"));
-         //   ArrayAdapter<String> adapter = new ArrayAdapter<String>(container.getContext(), android.R.layout.simple_dropdown_item_1line, options);
-          //  ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(container.getContext(), android.R.layout.simple_dropdown_item_1line, percorval);
-           // cpnType.setAdapter(adapter);
-          //  pctOrVal.setAdapter(adapter2);
-            return rootView;
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -288,73 +172,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialogF
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void MultipleSMS(String phoneNumber, String message) {
-        String SENT = "SMS_SENT";
-        String DELIVERED = "SMS_DELIVERED";
-
-        PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(
-                SENT), 0);
-
-        PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0,
-                new Intent(DELIVERED), 0);
-
-        // ---when the SMS has been sent---
-        registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context arg0, Intent arg1) {
-                switch (getResultCode()) {
-                    case Activity.RESULT_OK:
-                        ContentValues values = new ContentValues();
-                        for (int i = 0; i < MobNumbers.size() - 1; i++) {
-                            values.put("address", MobNumbers.get(i).toString());
-                            // txtPhoneNo.getText().toString());
-                            values.put("body", "this is a test");
-                        }
-                        getContentResolver().insert(
-                                Uri.parse("content://sms/sent"), values);
-                        Toast.makeText(getBaseContext(), "SMS sent",
-                                Toast.LENGTH_SHORT).show();
-                        break;
-                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                        Toast.makeText(getBaseContext(), "Generic failure",
-                                Toast.LENGTH_SHORT).show();
-                        break;
-                    case SmsManager.RESULT_ERROR_NO_SERVICE:
-                        Toast.makeText(getBaseContext(), "No service",
-                                Toast.LENGTH_SHORT).show();
-                        break;
-                    case SmsManager.RESULT_ERROR_NULL_PDU:
-                        Toast.makeText(getBaseContext(), "Null PDU",
-                                Toast.LENGTH_SHORT).show();
-                        break;
-                    case SmsManager.RESULT_ERROR_RADIO_OFF:
-                        Toast.makeText(getBaseContext(), "Radio off",
-                                Toast.LENGTH_SHORT).show();
-                        break;
-                }
-            }
-        }, new IntentFilter(SENT));
-
-        // ---when the SMS has been delivered---
-        registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context arg0, Intent arg1) {
-                switch (getResultCode()) {
-                    case Activity.RESULT_OK:
-                        Toast.makeText(getBaseContext(), "SMS delivered",
-                                Toast.LENGTH_SHORT).show();
-                        break;
-                    case Activity.RESULT_CANCELED:
-                        Toast.makeText(getBaseContext(), "SMS not delivered",
-                                Toast.LENGTH_SHORT).show();
-                        break;
-                }
-            }
-        }, new IntentFilter(DELIVERED));
-
-        SmsManager sms = SmsManager.getDefault();
-        sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);
-    }
 
 
     /**
