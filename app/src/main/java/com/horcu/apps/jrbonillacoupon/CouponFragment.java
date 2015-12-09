@@ -118,10 +118,10 @@ public class CouponFragment extends Fragment {
                 int n = 10000;
                 Random generator = new Random();
                 n = generator.nextInt(n);
-                String fname = "Image-" + n + ".jpg";
+                String fname = "Jrb/Coupon-" + n + ".jpg";
                 String storageLocation = SaveImageToExternalStorage(fname, coupon);
 
-                SendMMS("5409152215", "test", storageLocation);
+                SendMMS("5409152215", "Here is a savings coupon for your next visit! Thanks for your loyalty", storageLocation);
                 // MultipleSMS();
                 Snackbar.make(v,"Sent!", Snackbar.LENGTH_LONG).show();
             }
